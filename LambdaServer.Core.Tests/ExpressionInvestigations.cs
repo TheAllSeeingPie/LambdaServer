@@ -19,7 +19,16 @@ namespace LambdaServer.Core.Tests
         [TestMethod]
         public void Can_Lambdas_be_created_into_a_variable_of_Type_Expression2()
         {
-            LambdaExpression expression = Expressions.Create(arg1 => arg1);
+            LambdaExpression expression = Expressions.Create((string arg1) => arg1);
+            var container = new LambdaContainer(expression);
+
+            Assert.AreEqual("Hello world!", container.Invoke(new KeyValuePair<string, object>("ARG1", "Hello world!")));
+        }
+
+        [TestMethod]
+        public void Can_Lambdas_be_created_into_a_variable_of_Type_Expression2_with_interpolation()
+        {
+            LambdaExpression expression = Expressions.Create((string arg1) => $"{arg1}");
             var container = new LambdaContainer(expression);
 
             Assert.AreEqual("Hello world!", container.Invoke(new KeyValuePair<string, object>("ARG1", "Hello world!")));
@@ -28,7 +37,16 @@ namespace LambdaServer.Core.Tests
         [TestMethod]
         public void Can_Lambdas_be_created_into_a_variable_of_Type_Expression3()
         {
-            LambdaExpression expression = Expressions.Create((arg1, arg2) => $"{arg1} {arg2}");
+            LambdaExpression expression = Expressions.Create((string arg1, string arg2) => $"{arg1} {arg2}");
+            var container = new LambdaContainer(expression);
+
+            Assert.AreEqual("Hello world!", container.Invoke(new KeyValuePair<string, object>("ARG1", "Hello"), new KeyValuePair<string, object>("aRg2", "world!")));
+        }
+
+        [TestMethod]
+        public void Attempt_to_use_type_expressions()
+        {
+            LambdaExpression expression = Expressions.Create((string arg1, string arg2) => $"{arg1} {arg2}");
             var container = new LambdaContainer(expression);
 
             Assert.AreEqual("Hello world!", container.Invoke(new KeyValuePair<string, object>("ARG1", "Hello"), new KeyValuePair<string, object>("aRg2", "world!")));

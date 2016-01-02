@@ -1,10 +1,8 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.CSharp;
 
 namespace LambdaServer.Core
 {
@@ -38,51 +36,6 @@ namespace LambdaServer.Core
             var @params = Expression.Parameters.Select(p => p.Name).Select(parameter => parameters.Single(p => p.Key.Equals(parameter, StringComparison.OrdinalIgnoreCase)).Value);
 
             return CompiledDelegate.DynamicInvoke(@params.ToArray());
-        }
-    }
-
-    public class LambdaCompilerRuntime
-    {
-        public static LambdaCompilerRuntime Current = new LambdaCompilerRuntime(new [] { "System.dll", "System.Core.dll", "LambdaServer.Core.dll"});
-
-        public LambdaCompilerRuntime(IEnumerable<string> referencedAssemblies)
-        {
-            ReferencedAssemblies = referencedAssemblies;
-        }
-
-        public IEnumerable<string> ReferencedAssemblies { get; } 
-    }
-
-    public class LambdaCompiler
-    {
-        public CompilerResults Compile(string name, string lambda)
-        {
-            var provider = new CSharpCodeProvider();
-            var options = new CompilerParameters();
-
-            foreach (var assembly in LambdaCompilerRuntime.Current.ReferencedAssemblies)
-            {
-                options.ReferencedAssemblies.Add(assembly);
-            }
-
-            options.OutputAssembly = $"{name}.dll";
-            options.GenerateInMemory = true;
-
-            var source =
-                $@"
-                using LambdaServer.Core;
-                namespace {name}
-                {{
-                    public class {name}
-                    {{
-                        public LambdaContainer Container = new LambdaContainer(Expressions.Create({lambda}));
-                    }}
-                }}
-            ";
-
-            var result = provider.CompileAssemblyFromSource(options, source);
-
-            return result;
         }
     }
 }
